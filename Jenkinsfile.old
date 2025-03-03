@@ -23,48 +23,29 @@ pipeline {
             }
         }
 
-        stage('Build & Test in Parallel') {
-            parallel {
-                stage('Compile & Verify') {
-                    steps {
-                        script {
-                            logInfo("BUILD", "Compiling and running tests...")
-                            try {
-                                sh '''
-                                mvn --batch-mode -q clean verify -DskipTests=false
-                                '''
-                                logSuccess("BUILD", "Compilation and tests completed successfully.")
-                            } catch (Exception e) {
-                                logFailure("BUILD", "Build failed: ${e.message}")
-                                error("Stopping pipeline due to build failure.")
-                            }
-                        }
-                    }
-                }
-                stage('Static Code Analysis') {
-                    steps {
-                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                            script {
-                                logInfo("ANALYSIS", "Running SonarQube analysis...")
-                                try {
-                                    sh '''
-                                    mvn --batch-mode -q sonar:sonar \
-                                        -Dsonar.projectKey=${SONAR_PROJECT} \
-                                        -Dsonar.host.url=${SONAR_HOST} \
-                                        -Dsonar.token=$SONAR_TOKEN \
-                                        -Dsonar.qualitygate.wait=true
-                                    '''
-                                    logSuccess("ANALYSIS", "SonarQube analysis completed successfully.")
-                                } catch (Exception e) {
-                                    logFailure("ANALYSIS", "SonarQube analysis failed: ${e.message}")
-                                    error("Stopping pipeline due to SonarQube failure.")
-                                }
-                            }
+        stage('Static Code Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    script {
+                        logInfo("ANALYSIS", "Running static code analysis with Maven + SonarQube...")
+                        try {
+                            sh '''
+                            mvn --batch-mode -q clean verify sonar:sonar \
+                                -Dsonar.projectKey=${SONAR_PROJECT} \
+                                -Dsonar.host.url=${SONAR_HOST} \
+                                -Dsonar.token=$SONAR_TOKEN \
+                                -DskipTests  \
+                                -Dsonar.qualitygate.wait=true
+                            '''
+                            logSuccess("ANALYSIS", "SonarQube analysis completed successfully.")
+                        } catch (Exception e) {
+                            logFailure("ANALYSIS", "SonarQube analysis failed: ${e.message}")
+                            error("Stopping pipeline due to SonarQube failure.")
                         }
                     }
                 }
             }
-        }
+        }       
 
         stage('Build Image') {
             steps {
@@ -135,4 +116,20 @@ pipeline {
             logFailure("PIPELINE", "Pipeline failed.")
         }
     }
+}
+
+def logInfo(stage, message) {
+    echo "[${stage}] [INFO] ${getTimestamp()} - ${message}"
+}
+
+def logSuccess(stage, message) {
+    echo "[${stage}] [SUCCESS] ${getTimestamp()} - ${message}"
+}
+
+def logFailure(stage, message) {
+    echo "[${stage}] [FAILURE] ${getTimestamp()} - ${message}"
+}
+
+def getTimestamp() {
+    return sh(script: "TZ='America/Guatemala' date '+%Y-%m-%d %H:%M:%S'", returnStdout: true).trim()
 }
