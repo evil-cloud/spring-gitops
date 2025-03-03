@@ -11,6 +11,6 @@ public class VersionController {
 
     @GetMapping("/version")
     public VersionResponse hello() {
-        return new VersionResponse("¡Hola Mundo v1.0.0 desde Spring Boot!");
+        return new VersionResponse("¡Hola Mundo v1.0.1 desde Spring Boot!");
     }
 }
