@@ -30,7 +30,7 @@ pipeline {
                         logInfo("ANALYSIS", "Running static code analysis with Maven + SonarQube...")
                         try {
                             sh '''
-                            mvn clean verify sonar:sonar \
+                            mvn --batch-mode -q clean verify sonar:sonar \
                                 -Dsonar.projectKey=${SONAR_PROJECT} \
                                 -Dsonar.host.url=${SONAR_HOST} \
                                 -Dsonar.token=$SONAR_TOKEN \
