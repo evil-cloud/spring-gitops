@@ -1,4 +1,4 @@
-// Pipeline version: v1.1.1
+// Pipeline version: v1.0.2
 pipeline {
     agent { label 'jenkins-jenkins-agent' }
 
@@ -27,15 +27,14 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     script {
-                        logInfo("ANALYSIS", "Running static code analysis with SonarQube...")
+                        logInfo("ANALYSIS", "Running static code analysis with Maven + SonarQube...")
                         try {
                             sh '''
-                            sonar-scanner \
+                            mvn clean verify sonar:sonar \
                                 -Dsonar.projectKey=${SONAR_PROJECT} \
-                                -Dsonar.sources=src \
-                                -Dsonar.java.binaries=target/classes \
                                 -Dsonar.host.url=${SONAR_HOST} \
-                                -Dsonar.login=$SONAR_TOKEN
+                                -Dsonar.token=$SONAR_TOKEN \
+                                -DskipTests
                             '''
                             logSuccess("ANALYSIS", "SonarQube analysis completed successfully.")
                         } catch (Exception e) {
@@ -45,7 +44,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }       
 
         stage('Build Image') {
             steps {
