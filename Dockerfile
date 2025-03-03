@@ -12,7 +12,7 @@ COPY --chown=app:appgroup . .
 
 RUN mkdir -p /app/target && chmod -R 777 /app/target
 
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests --batch-mode -q
 
 # Etapa final (Runtime)
 FROM eclipse-temurin:17-jdk-alpine
