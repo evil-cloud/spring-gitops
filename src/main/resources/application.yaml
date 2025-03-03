@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: spring-gitops
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+custom:
+  base-path: /api/v1/spring-gitops
