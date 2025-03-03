@@ -34,7 +34,8 @@ pipeline {
                                 -Dsonar.projectKey=${SONAR_PROJECT} \
                                 -Dsonar.host.url=${SONAR_HOST} \
                                 -Dsonar.token=$SONAR_TOKEN \
-                                -DskipTests
+                                -DskipTests  \
+                                -Dsonar.qualitygate.wait=true
                             '''
                             logSuccess("ANALYSIS", "SonarQube analysis completed successfully.")
                         } catch (Exception e) {
