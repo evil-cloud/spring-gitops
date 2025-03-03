@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContext;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -17,20 +19,21 @@ class CicdApplicationTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private ApplicationContext context;
+
     @Test
     void contextLoads() {
-        // Validamos que la aplicación arranque sin problemas
+        assertThat(context).isNotNull();
     }
 
     @Test
     void healthCheckShouldReturnOk() {
-        // Hacemos una petición al endpoint de health check
         String url = "http://localhost:" + port + "/health";
         HealthResponse response = this.restTemplate.getForObject(url, HealthResponse.class);
 
-        // Validamos que la respuesta sea correcta
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo("ok");
-        assertThat(response.getServiceName()).endsWith("-service");
+        assertThat(response.getService()).endsWith("-service");
     }
 }
