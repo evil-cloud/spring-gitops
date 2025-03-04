@@ -31,7 +31,7 @@ pipeline {
                             logInfo("BUILD", "Compiling and running tests...")
                             try {
                                 sh '''
-                                mvn --batch-mode -q clean verify -DskipTests=false -Dtest.log.level=DEBUG | grep -E "Tests run:|Failures:|Errors:|Skipped:|DEBUG"
+                                mvn --batch-mode -q clean verify -DskipTests=false -Dtest.log.level=DEBUG 
                                 '''
                                 logSuccess("BUILD", "Compilation and tests completed successfully.")
                             } catch (Exception e) {
